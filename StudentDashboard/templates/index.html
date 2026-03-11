@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Performance Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+    }
+
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    header h1 { font-size: 1.4rem; font-weight: 600; }
+    header span { font-size: 1.6rem; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 20px 32px;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      align-items: flex-end;
+    }
+    .control-group { display: flex; flex-direction: column; gap: 4px; }
+    .control-group label {
+      font-size: 0.75rem; font-weight: 600; color: #718096;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    select {
+      padding: 8px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: white;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+      min-width: 150px;
+    }
+    select:focus { border-color: #4299e1; }
+
+    main { padding: 24px 32px; }
+
+    h2.section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    /* Highlights table */
+    .highlights-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+
+    .highlights-table thead tr {
+      background: #2c3e50;
+      color: white;
+    }
+    .highlights-table thead th {
+      padding: 13px 20px;
+      text-align: left;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .highlights-table tbody tr {
+      border-bottom: 1px solid #edf2f7;
+      transition: background 0.15s;
+    }
+    .highlights-table tbody tr:last-child { border-bottom: none; }
+    .highlights-table tbody tr:hover { background: #f7fafc; }
+
+    .highlights-table td {
+      padding: 14px 20px;
+      vertical-align: middle;
+    }
+
+    /* Row number badge */
+    .row-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #edf2f7;
+      color: #718096;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .label-cell { font-weight: 600; color: #2d3748; font-size: 0.95rem; }
+
+    .value-cell {
+      font-size: 1.15rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .detail-cell { font-size: 0.85rem; color: #718096; }
+
+    /* Tags */
+    .tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .tag-up      { background: #c6f6d5; color: #276749; }
+    .tag-down    { background: #fed7d7; color: #9b2c2c; }
+    .tag-neutral { background: #e2e8f0; color: #4a5568; }
+    .tag-info    { background: #bee3f8; color: #2b6cb0; }
+
+    .spinner-row td {
+      text-align: center;
+      padding: 48px;
+      color: #a0aec0;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span>&#127891;</span>
+  <h1>Student Performance Dashboard</h1>
+</header>
+
+<!-- Filters -->
+<div class="controls">
+  <div class="control-group">
+    <label>Gender</label>
+    <select id="gender">
+      {% for g in genders %}<option value="{{ g }}">{{ g }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="control-group">
+    <label>Ethnicity</label>
+    <select id="ethnicity">
+      {% for e in ethnicities %}<option value="{{ e }}">{{ e }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="control-group">
+    <label>Grade</label>
+    <select id="grade">
+      {% for g in grades %}<option value="{{ g }}">{{ g }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="control-group">
+    <label>Parental Education</label>
+    <select id="edu">
+      {% for e in edus %}<option value="{{ e }}">{{ e }}</option>{% endfor %}
+    </select>
+  </div>
+</div>
+
+<!-- Highlights table -->
+<main>
+  <h2 class="section-title">Key Highlights</h2>
+  <table class="highlights-table">
+    <thead>
+      <tr>
+        <th style="width:50px">#</th>
+        <th style="width:220px">Metric</th>
+        <th style="width:180px">Value</th>
+        <th>Insight</th>
+        <th style="width:100px">Trend</th>
+      </tr>
+    </thead>
+    <tbody id="highlights-body">
+      <tr class="spinner-row"><td colspan="5">Loading highlights...</td></tr>
+    </tbody>
+  </table>
+</main>
+
+<script>
+  const selectors = ['gender', 'ethnicity', 'grade', 'edu'];
+
+  const TAG_LABELS = { up: '▲ Positive', down: '▼ Concern', neutral: '— Neutral', info: 'ℹ Info' };
+  const TAG_CLASS  = { up: 'tag-up', down: 'tag-down', neutral: 'tag-neutral', info: 'tag-info' };
+
+  function getFilters() {
+    return {
+      gender:    document.getElementById('gender').value,
+      ethnicity: document.getElementById('ethnicity').value,
+      grade:     document.getElementById('grade').value,
+      edu:       document.getElementById('edu').value,
+    };
+  }
+
+  function updateDashboard() {
+    const tbody = document.getElementById('highlights-body');
+    tbody.innerHTML = '<tr class="spinner-row"><td colspan="5">Loading highlights...</td></tr>';
+
+    fetch('/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(getFilters())
+    })
+    .then(r => r.json())
+    .then(data => {
+      tbody.innerHTML = '';
+      data.highlights.forEach((h, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><div class="row-num">${i + 1}</div></td>
+          <td class="label-cell">${h.label}</td>
+          <td class="value-cell">${h.value}</td>
+          <td class="detail-cell">${h.detail}</td>
+          <td><span class="tag ${TAG_CLASS[h.tag]}">${TAG_LABELS[h.tag]}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  }
+
+  selectors.forEach(id => {
+    document.getElementById(id).addEventListener('change', updateDashboard);
+  });
+
+  updateDashboard();
+</script>
+</body>
+</html>

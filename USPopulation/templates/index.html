@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>US State Population</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1 { font-size: 1.8rem; color: #2d3748; margin-bottom: 8px; }
+    p.subtitle { color: #718096; margin-bottom: 28px; font-size: 0.95rem; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: #4299e1; }
+    button {
+      margin-top: 14px;
+      width: 100%;
+      padding: 12px;
+      background: #4299e1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #3182ce; }
+    .result {
+      margin-top: 28px;
+      padding: 24px;
+      background: #ebf8ff;
+      border-radius: 10px;
+    }
+    .result .state-name { font-size: 1.3rem; font-weight: 600; color: #2b6cb0; }
+    .result .population { font-size: 2.6rem; font-weight: bold; color: #2c5282; margin: 10px 0 4px; }
+    .result .label { color: #4a5568; font-size: 0.9rem; }
+    .result .source { font-size: 0.8rem; color: #a0aec0; margin-top: 10px; }
+    .error {
+      margin-top: 20px;
+      padding: 14px;
+      background: #fff5f5;
+      color: #c53030;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .hint {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #a0aec0;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🇺🇸 US State Population</h1>
+    <p class="subtitle">Enter a 2-letter state code to look up population</p>
+    <form method="POST">
+      <input type="text" name="state_code" placeholder="e.g. CA" maxlength="2" value="{{ state_code }}" autofocus />
+      <button type="submit">Look Up Population</button>
+    </form>
+    <p class="hint">Valid codes: AL, AK, AZ, AR, CA, CO, CT, DE, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY, DC</p>
+
+    {% if result %}
+    <div class="result">
+      <div class="state-name">{{ result.state }}</div>
+      <div class="population">{{ "{:,}".format(result.population) }}</div>
+      <div class="label">Total Population</div>
+      <div class="source">Source: US Census Bureau {{ result.year }} Decennial Census</div>
+    </div>
+    {% elif error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+  </div>
+</body>
+</html>
